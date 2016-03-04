@@ -8,17 +8,17 @@ package org.mule.api.metadata;
 
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleException;
-import org.mule.extension.api.metadata.MetaDataKey;
 import org.mule.metadata.api.model.MetadataType;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MetadataAware
 {
-    List<MetaDataKey> getMetadataKeys(MuleEvent event) throws MuleException;
+    Optional<List<MetadataKey>> getMetadataKeys(MuleEvent event) throws MuleException;
 
-    MetadataType getContentMetadata(MuleEvent event, MetaDataKey key) throws MuleException;
+    Optional<MetadataType> getContentMetadata(MuleEvent event, MetadataKey key) throws MuleException;
 
-    MetadataType getOutputMetadata(MuleEvent event, MetaDataKey key) throws MuleException;
+    Optional<MetadataType> getOutputMetadata(MuleEvent event, MetadataKey key) throws MuleException;
 }
 

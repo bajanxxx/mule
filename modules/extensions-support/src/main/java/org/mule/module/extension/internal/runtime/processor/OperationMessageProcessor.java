@@ -20,23 +20,19 @@ import org.mule.api.context.MuleContextAware;
 import org.mule.api.lifecycle.InitialisationException;
 import org.mule.api.lifecycle.Lifecycle;
 import org.mule.api.metadata.MetadataAware;
+import org.mule.api.metadata.MetadataKey;
 import org.mule.api.processor.MessageProcessor;
 import org.mule.extension.api.ExtensionManager;
 import org.mule.extension.api.introspection.ExceptionEnricher;
 import org.mule.extension.api.introspection.ExceptionEnricherFactory;
 import org.mule.extension.api.introspection.ExtensionModel;
 import org.mule.extension.api.introspection.OperationModel;
-import org.mule.extension.api.metadata.MetaDataKey;
-import org.mule.extension.api.metadata.MetadataAware;
 import org.mule.extension.api.metadata.MetadataContext;
 import org.mule.extension.api.runtime.ConfigurationInstance;
 import org.mule.extension.api.runtime.OperationContext;
 import org.mule.extension.api.runtime.OperationExecutor;
 import org.mule.internal.connection.ConnectionManagerAdapter;
-import org.mule.metadata.api.annotation.TypeAnnotation;
-import org.mule.metadata.api.model.MetadataFormat;
 import org.mule.metadata.api.model.MetadataType;
-import org.mule.metadata.api.visitor.MetadataTypeVisitor;
 import org.mule.module.extension.internal.runtime.DefaultExecutionMediator;
 import org.mule.module.extension.internal.runtime.DefaultOperationContext;
 import org.mule.module.extension.internal.runtime.ExecutionMediator;
@@ -45,8 +41,6 @@ import org.mule.module.extension.internal.runtime.exception.NullExceptionEnriche
 import org.mule.module.extension.internal.runtime.resolver.ResolverSet;
 import org.mule.util.StringUtils;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -193,76 +187,41 @@ public final class OperationMessageProcessor implements MessageProcessor, MuleCo
     }
 
     @Override
-    public List<MetaDataKey> getMetadataKeys(MuleEvent event) throws MuleException
+    public Optional<List<MetadataKey>> getMetadataKeys(MuleEvent event) throws MuleException
     {
         if (operationModel.getMetaDataResolverFactory().isPresent()){
-            return operationModel.getMetaDataResolverFactory().get().createResolver().getMetaDataKeys(getMetadataContext(event));
+            return Optional.of(operationModel.getMetaDataResolverFactory().get().createResolver().getMetadataKeys(getMetadataContext(event)));
         }
-
-
-        //return Collections.singletonList(new NullMetaDataKey());
+        return Optional.empty();
     }
 
     @Override
-    public MetadataType getContentMetadata(MuleEvent event, MetaDataKey key) throws MuleException
+    public Optional<MetadataType> getContentMetadata(MuleEvent event, MetadataKey key) throws MuleException
     {
         if (operationModel.getMetaDataResolverFactory().isPresent()){
-            return operationModel.getMetaDataResolverFactory().get().createResolver().getMetaData(getMetadataContext(event), key);
+            return Optional.of(operationModel.getMetaDataResolverFactory().get().createResolver().getMetadata(getMetadataContext(event), key));
         }
 
         if (operationModel.getContentParameter().isPresent())
         {
             //FIXME  metadatatype
-            return operationModel.getContentParameter().get().getType();
+            //return Optional.of(operationModel.getContentParameter().get().getType());
+            return Optional.empty();
         }
 
-
-        // FIXME return generic type or fail?
-        return null;
+        return Optional.empty();
     }
 
     @Override
-    public MetadataType getOutputMetadata(MuleEvent event, MetaDataKey key) throws MuleException
+    public Optional<MetadataType> getOutputMetadata(MuleEvent event, MetadataKey key) throws MuleException
     {
         if (operationModel.getMetaDataResolverFactory().isPresent()){
-            return operationModel.getMetaDataResolverFactory().get().createResolver().getOutputMetaData(getMetadataContext(event), key);
+            return Optional.of(operationModel.getMetaDataResolverFactory().get().createResolver().getOutputMetadata(getMetadataContext(event), key));
         }
 
         //FIXME  metadatatype
-        return new MetadataType()
-        {
-            @Override
-            public MetadataFormat getMetadataFormat()
-            {
-                operationModel.getReturnType();
-                return null;
-            }
-
-            @Override
-            public <T extends TypeAnnotation> Collection<T> getAnnotation(Class<T> aClass)
-            {
-                return null;
-            }
-
-            @Override
-            public Collection<TypeAnnotation> getAnnotations()
-            {
-                return null;
-            }
-
-            @Override
-            public Optional<String> getDescription()
-            {
-                return null;
-            }
-
-            @Override
-            public void accept(MetadataTypeVisitor metadataTypeVisitor)
-            {
-
-            }
-        };
-
+        //return Optional.of(operationModel.getReturnType());
+        return Optional.empty();
     }
 
     private MetadataContext getMetadataContext(MuleEvent event) throws MuleException

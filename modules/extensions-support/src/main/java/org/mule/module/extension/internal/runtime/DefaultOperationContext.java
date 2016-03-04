@@ -10,6 +10,7 @@ import static org.mule.util.Preconditions.checkArgument;
 import org.mule.api.MuleEvent;
 import org.mule.extension.api.introspection.OperationModel;
 import org.mule.extension.api.introspection.ParameterModel;
+import org.mule.extension.api.metadata.MetadataContext;
 import org.mule.extension.api.runtime.ConfigurationInstance;
 import org.mule.module.extension.internal.runtime.resolver.ResolverSetResult;
 
@@ -135,5 +136,12 @@ public class DefaultOperationContext implements OperationContextAdapter
     public OperationModel getOperationModel()
     {
         return operationModel;
+    }
+
+    @Override
+    public MetadataContext getMetadataContext()
+    {
+        //TODO new DefaultMetadataContext();
+        return null;
     }
 }
