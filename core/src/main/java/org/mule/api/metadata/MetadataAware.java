@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public interface MetadataAware
 {
+
     Optional<List<MetadataKey>> getMetadataKeys(MuleEvent event) throws MuleException;
 
     Optional<MetadataType> getContentMetadata(MuleEvent event, MetadataKey key) throws MuleException;

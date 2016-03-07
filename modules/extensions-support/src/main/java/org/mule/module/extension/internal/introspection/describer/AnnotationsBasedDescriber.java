@@ -29,7 +29,7 @@ import org.mule.extension.api.annotation.OnException;
 import org.mule.extension.api.annotation.Operations;
 import org.mule.extension.api.annotation.Sources;
 import org.mule.extension.api.annotation.connector.Providers;
-import org.mule.extension.api.annotation.metadata.MetaDataScope;
+import org.mule.extension.api.annotation.metadata.MetadataScope;
 import org.mule.extension.api.annotation.param.Connection;
 import org.mule.extension.api.annotation.param.Optional;
 import org.mule.extension.api.annotation.param.UseConfig;
@@ -373,8 +373,8 @@ public final class AnnotationsBasedDescriber implements Describer
 
     private java.util.Optional<MetadataResolverFactory> getMetadataResolverFactory(Class<?> extensionType, Method method)
     {
-        MetaDataScope metadataScopeAnnotation = method.getAnnotation(MetaDataScope.class);
-        metadataScopeAnnotation = metadataScopeAnnotation == null ? extensionType.getAnnotation(MetaDataScope.class) : metadataScopeAnnotation;
+        MetadataScope metadataScopeAnnotation = method.getAnnotation(MetadataScope.class);
+        metadataScopeAnnotation = metadataScopeAnnotation == null ? extensionType.getAnnotation(MetadataScope.class) : metadataScopeAnnotation;
 
         if (metadataScopeAnnotation != null)
         {

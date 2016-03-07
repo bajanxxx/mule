@@ -10,27 +10,27 @@ import static org.mule.config.i18n.MessageFactory.createStaticMessage;
 import static org.mule.util.Preconditions.checkArgument;
 import org.mule.api.MuleRuntimeException;
 import org.mule.extension.api.introspection.metadata.MetadataResolverFactory;
-import org.mule.extension.api.metadata.MetaDataResolver;
+import org.mule.extension.api.metadata.MetadataResolver;
 
 public final class DefaultMetadataResolverFactory implements MetadataResolverFactory
 {
-    private final MetaDataResolver resolver;
+    private final MetadataResolver resolver;
 
-    public DefaultMetadataResolverFactory(Class<? extends MetaDataResolver> resolverType)
+    public DefaultMetadataResolverFactory(Class<? extends MetadataResolver> resolverType)
     {
-        checkArgument(resolverType != null, "MetaDataResolver type cannot be null");
+        checkArgument(resolverType != null, "MetadataResolver type cannot be null");
         try
         {
             resolver = resolverType.newInstance();
         }
         catch (Exception e)
         {
-            throw new MuleRuntimeException(createStaticMessage("Could not create MetaDataResolver of type " + resolverType.getName()), e);
+            throw new MuleRuntimeException(createStaticMessage("Could not create MetadataResolver of type " + resolverType.getName()), e);
         }
     }
 
     @Override
-    public MetaDataResolver createResolver()
+    public MetadataResolver createResolver()
     {
         return resolver;
     }
