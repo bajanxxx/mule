@@ -25,14 +25,13 @@ public class MuleMetadataManager implements MetadataManager, MuleContextAware
     public Optional<List<MetadataKey>> getMetadataKeys(Object event, ProcessorId processorId)
     {
         MessageProcessor messageProcessor = findMessageProcessor(processorId);
-        if (messageProcessor.getClass().isAssignableFrom(MetadataAware.class)){
+        if (MetadataAware.class.isAssignableFrom(messageProcessor.getClass())){
             try
             {
                 return ((MetadataAware)messageProcessor).getMetadataKeys((MuleEvent) event);
             }
             catch (MuleException e)
             {
-                e.printStackTrace();
                 throw new MetadataResolvingException(e);
             }
         }
@@ -44,14 +43,13 @@ public class MuleMetadataManager implements MetadataManager, MuleContextAware
     public Optional<MetadataType> getContentMetadata(Object event, ProcessorId processorId, MetadataKey key)
     {
         MessageProcessor messageProcessor = findMessageProcessor(processorId);
-        if (messageProcessor.getClass().isAssignableFrom(MetadataAware.class)){
+        if (MetadataAware.class.isAssignableFrom(messageProcessor.getClass())){
             try
             {
                 return ((MetadataAware)messageProcessor).getContentMetadata((MuleEvent) event, key);
             }
             catch (MuleException e)
             {
-                e.printStackTrace();
                 throw new MetadataResolvingException(e);
             }
         }
@@ -63,14 +61,14 @@ public class MuleMetadataManager implements MetadataManager, MuleContextAware
     public Optional<MetadataType> getOutputMetadata(Object event, ProcessorId processorId, MetadataKey key)
     {
         MessageProcessor messageProcessor = findMessageProcessor(processorId);
-        if (messageProcessor.getClass().isAssignableFrom(MetadataAware.class)){
+        if (MetadataAware.class.isAssignableFrom(messageProcessor.getClass()))
+        {
             try
             {
                 return ((MetadataAware)messageProcessor).getOutputMetadata((MuleEvent) event, key);
             }
             catch (MuleException e)
             {
-                e.printStackTrace();
                 throw new MetadataResolvingException(e);
             }
         }
