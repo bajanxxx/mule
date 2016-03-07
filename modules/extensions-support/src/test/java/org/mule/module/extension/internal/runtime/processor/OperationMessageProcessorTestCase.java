@@ -7,6 +7,7 @@
 package org.mule.module.extension.internal.runtime.processor;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -19,7 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import org.mule.DefaultMuleMessage;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleEvent;
@@ -30,12 +30,15 @@ import org.mule.api.lifecycle.Lifecycle;
 import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
 import org.mule.api.metadata.DataType;
+import org.mule.api.metadata.MetadataKey;
 import org.mule.api.temporary.MuleMessage;
 import org.mule.extension.api.ExtensionManager;
 import org.mule.extension.api.introspection.ConfigurationModel;
 import org.mule.extension.api.introspection.ExceptionEnricherFactory;
 import org.mule.extension.api.introspection.ExtensionModel;
 import org.mule.extension.api.introspection.OperationModel;
+import org.mule.extension.api.introspection.ParameterModel;
+import org.mule.extension.api.introspection.metadata.MetadataResolverFactory;
 import org.mule.extension.api.runtime.ConfigurationInstance;
 import org.mule.extension.api.runtime.OperationContext;
 import org.mule.extension.api.runtime.OperationExecutor;
@@ -43,15 +46,20 @@ import org.mule.extension.api.runtime.OperationExecutorFactory;
 import org.mule.internal.connection.ConnectionManagerAdapter;
 import org.mule.internal.connection.ConnectionProviderWrapper;
 import org.mule.internal.connection.DefaultConnectionManager;
+import org.mule.metadata.api.model.MetadataType;
+import org.mule.metadata.api.model.StringType;
 import org.mule.module.extension.internal.runtime.OperationContextAdapter;
 import org.mule.module.extension.internal.runtime.exception.NullExceptionEnricher;
 import org.mule.module.extension.internal.runtime.resolver.ResolverSet;
 import org.mule.module.extension.internal.runtime.resolver.ResolverSetResult;
+import org.mule.module.extension.metadata.NoConfigMetadataResolver;
 import org.mule.tck.junit4.AbstractMuleContextTestCase;
 import org.mule.tck.size.SmallTest;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -112,6 +120,9 @@ public class OperationMessageProcessorTestCase extends AbstractMuleContextTestCa
     private ExceptionEnricherFactory exceptionEnricherFactory;
 
     @Mock
+    private MetadataResolverFactory metadataResolverFactory;
+
+    @Mock
     private ConnectionProviderWrapper connectionProviderWrapper;
 
     private OperationMessageProcessor messageProcessor;
@@ -126,9 +137,14 @@ public class OperationMessageProcessorTestCase extends AbstractMuleContextTestCa
 
         when(operationModel.getReturnType()).thenReturn(org.mule.extension.api.introspection.DataType.of(String.class));
         when(operationModel.getExecutor()).thenReturn(operationExecutorFactory);
+        when(operationExecutorFactory.createExecutor()).thenReturn(operationExecutor);
+
         when(operationModel.getExceptionEnricherFactory()).thenReturn(Optional.of(exceptionEnricherFactory));
         when(exceptionEnricherFactory.createEnricher()).thenReturn(new NullExceptionEnricher());
-        when(operationExecutorFactory.createExecutor()).thenReturn(operationExecutor);
+
+        when(operationModel.getMetaDataResolverFactory()).thenReturn(Optional.of(metadataResolverFactory));
+        when(metadataResolverFactory.createResolver()).thenReturn(new NoConfigMetadataResolver());
+
         when(resolverSet.resolve(event)).thenReturn(parameters);
 
         when(configurationInstance.getName()).thenReturn(CONFIG_NAME);
@@ -378,6 +394,111 @@ public class OperationMessageProcessorTestCase extends AbstractMuleContextTestCa
         messageProcessor.dispose();
         verify((Disposable) operationExecutor).dispose();
     }
+
+    @Test
+    public void getMetadataKeys() throws Exception
+    {
+        Optional<List<MetadataKey>> metadataKeys = messageProcessor.getMetadataKeys(event);
+
+        verify(operationModel).getMetaDataResolverFactory();
+        verify(metadataResolverFactory).createResolver();
+
+        assertThat(metadataKeys.isPresent(), is(true));
+        assertThat(metadataKeys.get().size(), is(2));
+
+        assertThat(metadataKeys.get().get(0).getId(), equalTo(NoConfigMetadataResolver.KeyIds.BOOLEAN.name()));
+        assertThat(metadataKeys.get().get(1).getId(), equalTo(NoConfigMetadataResolver.KeyIds.STRING.name()));
+    }
+
+    @Test
+    public void getContentMetadata() throws Exception
+    {
+        ParameterModel contentMock = mock(ParameterModel.class);
+        when(operationModel.getContentParameter()).thenReturn(Optional.of(contentMock));
+
+        MetadataKey keyMock = mock(MetadataKey.class);
+        when(keyMock.getId()).thenReturn(NoConfigMetadataResolver.KeyIds.STRING.name());
+
+        Optional<MetadataType> contentMetadata = messageProcessor.getContentMetadata(event, keyMock);
+
+        verify(operationModel).getMetaDataResolverFactory();
+        verify(metadataResolverFactory).createResolver();
+
+        assertThat(contentMetadata.isPresent(), is(true));
+
+        assertThat(contentMetadata.get().getMetadataFormat().getId(), equalTo(StringType.class.getSimpleName()));
+    }
+
+    @Test
+    public void getOutputMetadata() throws Exception
+    {
+        MetadataKey keyMock = mock(MetadataKey.class);
+        when(keyMock.getId()).thenReturn(NoConfigMetadataResolver.KeyIds.BOOLEAN.name());
+
+        Optional<MetadataType> outputMetadata = messageProcessor.getOutputMetadata(event, keyMock);
+
+        verify(operationModel).getMetaDataResolverFactory();
+        verify(metadataResolverFactory).createResolver();
+
+        assertThat(outputMetadata.isPresent(), is(true));
+        assertThat(outputMetadata.get().getMetadataFormat().getId(), equalTo(NoConfigMetadataResolver.BOOLEAN_TYPE_RESULT_ID));
+    }
+
+    @Test
+    public void getContentMetadataDefaultToJavaType() throws Exception
+    {
+        ParameterModel contentMock = mock(ParameterModel.class);
+        when(operationModel.getContentParameter()).thenReturn(Optional.of(contentMock));
+
+        MetadataKey nullKeyMock = mock(MetadataKey.class);
+        when(nullKeyMock.getId()).thenReturn("");
+
+        // TODO migrate to MetadataType
+        when(contentMock.getType()).thenReturn(org.mule.extension.api.introspection.DataType.of(Map.class));
+
+        Optional<MetadataType> contentMetadata = messageProcessor.getContentMetadata(event, nullKeyMock);
+        verify(operationModel).getMetaDataResolverFactory();
+        verify(metadataResolverFactory).createResolver();
+
+        assertThat(contentMetadata.isPresent(), is(true));
+
+        assertThat(contentMetadata.get().getMetadataFormat().getId(), equalTo(Map.class.getName()));
+    }
+
+    @Test
+    public void getContentMetadataMissingContent() throws Exception
+    {
+        when(operationModel.getContentParameter()).thenReturn(Optional.empty());
+
+        MetadataKey nullKeyMock = mock(MetadataKey.class);
+        when(nullKeyMock.getId()).thenReturn("");
+
+        Optional<MetadataType> contentMetadata = messageProcessor.getContentMetadata(event, nullKeyMock);
+        verify(operationModel, never()).getMetaDataResolverFactory();
+        verify(metadataResolverFactory, never()).createResolver();
+
+        assertThat(contentMetadata.isPresent(), is(false));
+    }
+
+    @Test
+    public void getOutputMetadataToJavaType() throws Exception
+    {
+        MetadataKey nullKeyMock = mock(MetadataKey.class);
+        when(nullKeyMock.getId()).thenReturn("");
+
+        // TODO migrate to MetadataType
+        when(operationModel.getReturnType()).thenReturn(org.mule.extension.api.introspection.DataType.of(Object.class));
+
+        Optional<MetadataType> outputMetadata = messageProcessor.getOutputMetadata(event, nullKeyMock);
+
+        verify(operationModel).getMetaDataResolverFactory();
+        verify(metadataResolverFactory).createResolver();
+
+        assertThat(outputMetadata.isPresent(), is(true));
+        assertThat(outputMetadata.get().getMetadataFormat().getId(), equalTo(Object.class.getName()));
+    }
+
+
 
     private OperationMessageProcessor createOperationMessageProcessor() throws Exception
     {
