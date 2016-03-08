@@ -6,6 +6,10 @@
  */
 package org.mule.module.extension;
 
+import org.mule.api.MuleEvent;
+import org.mule.api.metadata.MetadataKey;
+import org.mule.api.metadata.MetadataManager;
+import org.mule.api.metadata.ProcessorId;
 import org.mule.extension.api.ExtensionManager;
 import org.mule.extension.api.annotation.metadata.MetadataScope;
 import org.mule.extension.api.annotation.param.Connection;
@@ -14,7 +18,9 @@ import org.mule.extension.api.annotation.param.metadata.MetadataKeyParam;
 import org.mule.module.extension.metadata.ConnectionAwareMetadataResolver;
 import org.mule.module.extension.metadata.NoConfigMetadataResolver;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -30,10 +36,13 @@ public class HeisenbergMetadataOperations
     @Inject
     private ExtensionManager extensionManager;
 
+    @Inject
+    private MetadataManager metadataManager;
+
     @MetadataScope(NoConfigMetadataResolver.class)
-    public void dynamicContentWithKey(@MetadataKeyParam String type, @Content Map<String, Object> payload)
+    public void dynamicContentWithKey(@MetadataKeyParam String type, @Content Map<String, Object> payload, MuleEvent event)
     {
-        //TODO
+        Optional<List<MetadataKey>> dynamicContentWithKey = metadataManager.getMetadataKeys(event, new ProcessorId("dynamicContentWithKey", 0));
     }
 
     @MetadataScope(ConnectionAwareMetadataResolver.class)

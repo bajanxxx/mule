@@ -19,6 +19,9 @@ import java.util.Optional;
 
 public class MuleMetadataManager implements MetadataManager, MuleContextAware
 {
+
+    public static final String MANAGER_REGISTRY_ID = "core.metadata.manager.1";
+
     private MuleContext muleContext;
 
     @Override

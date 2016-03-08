@@ -46,6 +46,10 @@
         <heisenberg:say-my-name/>
     </flow>
 
+    <flow name="dynamicContentWithKey">
+        <heisenberg:dynamic-content-with-key type="STRING" payload="#[['s01':['emilio', 'domingo'], 's02':['tuco', 'tortuga']]]"/>
+    </flow>
+
     <flow name="sayMyNameOnTarget">
         <heisenberg:say-my-name target="myFace" />
     </flow>

@@ -45,7 +45,7 @@ import java.util.function.Function;
 import javax.inject.Inject;
 
 @Extension(name = HeisenbergExtension.HEISENBERG, description = HeisenbergExtension.EXTENSION_DESCRIPTION)
-@Operations({HeisenbergOperations.class, MoneyLaunderingOperation.class})
+@Operations({HeisenbergOperations.class, MoneyLaunderingOperation.class, HeisenbergMetadataOperations.class})
 @Xml(schemaVersion = HeisenbergExtension.SCHEMA_VERSION)
 @Extensible(alias = "heisenberg-empire")
 @OnException(HeisenbegExceptionEnricher.class)
