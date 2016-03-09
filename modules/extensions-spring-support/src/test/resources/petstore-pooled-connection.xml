@@ -8,19 +8,10 @@
                http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd">
 
     <spring:beans>
-        <spring:import resource="petstore-connection.xml"/>
+        <spring:import resource="petstore.xml"/>
     </spring:beans>
 
-    <petstore:config name="petstore">
-        <petstore:pooled-connection username="john" password="doe" />
-        <petstore:pets>
-            <petstore:pet value="Lassie" />
-            <petstore:pet value="Sapo Pepe" />
-            <petstore:pet value="My mother's parrot" />
-        </petstore:pets>
-    </petstore:config>
-
-    <petstore:config name="customPooling">
+    <petstore:config name="customPoolingPooled">
         <petstore:pooled-connection username="john" password="doe">
             <pooling-profile maxActive="3" exhaustedAction="WHEN_EXHAUSTED_FAIL" />
         </petstore:pooled-connection>

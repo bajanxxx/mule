@@ -7,9 +7,9 @@
 package org.mule.internal.connection;
 
 import static org.mule.api.lifecycle.LifecycleUtils.assertNotStopping;
-
 import org.mule.api.MuleContext;
 import org.mule.api.MuleException;
+import org.mule.api.config.PoolingProfile;
 import org.mule.api.connection.ConnectionException;
 import org.mule.api.connection.ConnectionHandler;
 import org.mule.api.connection.ConnectionHandlingStrategy;
@@ -49,6 +49,7 @@ public final class DefaultConnectionManager implements ConnectionManagerAdapter,
     private final Lock writeLock = readWriteLock.writeLock();
     private final MuleContext muleContext;
     private final RetryPolicyTemplate retryPolicyTemplate;
+    private final PoolingProfile poolingProfile;
 
     /**
      * Creates a new instance
@@ -59,6 +60,7 @@ public final class DefaultConnectionManager implements ConnectionManagerAdapter,
     public DefaultConnectionManager(MuleContext muleContext)
     {
         this.muleContext = muleContext;
+        this.poolingProfile = new PoolingProfile();
         this.retryPolicyTemplate = new NoRetryPolicyTemplate();
     }
 
@@ -176,7 +178,8 @@ public final class DefaultConnectionManager implements ConnectionManagerAdapter,
 
     private <Config, Connection> ConnectionHandlingStrategyAdapter<Config, Connection> getManagementStrategy(Config config, ConnectionProvider<Config, Connection> connectionProvider)
     {
-        return (ConnectionHandlingStrategyAdapter<Config, Connection>) connectionProvider.getHandlingStrategy(new DefaultConnectionHandlingStrategyFactory(config, connectionProvider, muleContext));
+        PoolingProfile poolingProfile = ((ConnectionProviderWrapper) connectionProvider).getPoolingProfile().orElse(getDefaultPoolingProfile());
+        return (ConnectionHandlingStrategyAdapter<Config, Connection>) connectionProvider.getHandlingStrategy(new DefaultConnectionHandlingStrategyFactory<>(config, connectionProvider, poolingProfile, muleContext));
     }
 
     @Override
@@ -229,6 +232,12 @@ public final class DefaultConnectionManager implements ConnectionManagerAdapter,
     public RetryPolicyTemplate getDefaultRetryPolicyTemplate()
     {
         return retryPolicyTemplate;
+    }
+
+    @Override
+    public PoolingProfile getDefaultPoolingProfile()
+    {
+        return poolingProfile;
     }
 
 }

@@ -29,10 +29,9 @@ public final class ConnectionProviderObjectBuilder extends ParameterGroupAwareOb
 {
 
     private final ConnectionProviderModel providerModel;
+    private final boolean disableValidation;
+    private final RetryPolicyTemplate retryPolicyTemplate;
     private final PoolingProfile poolingProfile;
-    private boolean disableValidation;
-    private RetryPolicyTemplate retryPolicyTemplate;
-    private final ConnectionManagerAdapter connectionManager;
 
     /**
      * Creates a new instances which produces instances based on the given {@code providerModel} and
@@ -48,26 +47,25 @@ public final class ConnectionProviderObjectBuilder extends ParameterGroupAwareOb
         this(providerModel, resolverSet, null, false, null, connectionManager);
     }
 
-    public ConnectionProviderObjectBuilder(ConnectionProviderModel providerModel, ResolverSet resolverSet, PoolingProfile poolingProfile, boolean disableValidation, RetryPolicyTemplate retryPolicyTemplate, ConnectionManagerAdapter connectionManager)
+    public ConnectionProviderObjectBuilder(ConnectionProviderModel providerModel,
+                                           ResolverSet resolverSet,
+                                           PoolingProfile poolingProfile,
+                                           boolean disableValidation,
+                                           RetryPolicyTemplate retryPolicyTemplate,
+                                           ConnectionManagerAdapter connectionManager)
     {
         super(providerModel.getConnectionProviderFactory().getObjectType(), providerModel, resolverSet);
         this.providerModel = providerModel;
         this.poolingProfile = poolingProfile;
+        this.retryPolicyTemplate = retryPolicyTemplate != null ? retryPolicyTemplate : connectionManager.getDefaultRetryPolicyTemplate();
         this.disableValidation = disableValidation;
-        this.retryPolicyTemplate = retryPolicyTemplate;
-        this.connectionManager = connectionManager;
     }
 
     @Override
     public ConnectionProvider build(ResolverSetResult result) throws MuleException
     {
         ConnectionProvider provider = super.build(result);
-
         ConnectionHandlingTypeModelProperty connectionHandlingType = providerModel.getModelProperty(ConnectionHandlingTypeModelProperty.KEY);
-        if (retryPolicyTemplate == null)
-        {
-            retryPolicyTemplate = connectionManager.getDefaultRetryPolicyTemplate();
-        }
 
         if (connectionHandlingType != null)
         {

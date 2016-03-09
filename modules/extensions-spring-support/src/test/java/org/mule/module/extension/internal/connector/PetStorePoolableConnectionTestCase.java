@@ -10,7 +10,6 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.mule.module.extension.internal.runtime.connector.petstore.PetStoreClient;
-import org.mule.module.extension.internal.runtime.connector.petstore.PetStorePoolingProfile;
 
 import java.util.Collection;
 
@@ -25,8 +24,7 @@ public class PetStorePoolableConnectionTestCase extends PetStorePooledConnection
     public static Collection<Object[]> data()
     {
         return asList(new Object[][] {
-                {"petstore", PetStorePoolingProfile.MAX_ACTIVE},
-                {"customPooling", PetStorePoolingProfile.MAX_ACTIVE + 1},
+                {"customPooling", 3},
                 {NO_POOLING, 0}});
     }
 

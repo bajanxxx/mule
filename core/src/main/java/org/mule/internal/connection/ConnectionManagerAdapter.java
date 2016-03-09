@@ -6,6 +6,7 @@
  */
 package org.mule.internal.connection;
 
+import org.mule.api.config.PoolingProfile;
 import org.mule.api.connector.ConnectionManager;
 import org.mule.api.lifecycle.Stoppable;
 import org.mule.api.retry.RetryPolicyTemplate;
@@ -19,4 +20,6 @@ public interface ConnectionManagerAdapter extends ConnectionManager, Stoppable
 {
 
     RetryPolicyTemplate getDefaultRetryPolicyTemplate();
+
+    PoolingProfile getDefaultPoolingProfile();
 }
