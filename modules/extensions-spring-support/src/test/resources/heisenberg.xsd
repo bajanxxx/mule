@@ -152,6 +152,8 @@
                     <xs:attribute type="xs:string" use="optional" default="#[payload]" name="literalExpressionWithDefault"></xs:attribute>
                     <xs:attribute type="mule:expressionList" use="required" name="monthlyIncomes"></xs:attribute>
                     <xs:attribute type="xs:string" use="optional" name="literalExpressionWithoutDefault"></xs:attribute>
+                    <xs:attribute type="mule:expressionString" use="optional" name="displayNameParameter"></xs:attribute>
+                    <xs:attribute type="mule:expressionString" use="optional" name="testHowDisplayNameIsGeneratedWhenNotOverrided"></xs:attribute>
                     <xs:attribute type="mule:expressionMap" use="optional" name="candidateDoors"></xs:attribute>
                     <xs:attribute type="xs:string" use="optional" name="firstEndevour"></xs:attribute>
                     <xs:attribute type="mule:expressionString" use="optional" default="Heisenberg" name="myName"></xs:attribute>
@@ -613,6 +615,20 @@
                         <xs:documentation>The name of a variable on which the operation's output will be placed</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element xmlns="http://www.mulesoft.org/schema/mule/heisenberg" type="OperationWithDisplayNameParameterType" substitutionGroup="heisenberg-empire" name="operation-with-display-name-parameter"></xs:element>
+    <xs:complexType name="OperationWithDisplayNameParameterType">
+        <xs:complexContent>
+            <xs:extension xmlns:mule="http://www.mulesoft.org/schema/mule/core" base="mule:abstractMessageProcessorType">
+                <xs:attribute type="mule:substitutableName" use="optional" name="config-ref">
+                    <xs:annotation>
+                        <xs:documentation>Specify which configuration to use for this invocation.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute type="mule:expressionString" use="required" name="overridedDisplayNameParameter"></xs:attribute>
+                <xs:attribute type="mule:expressionString" use="required" name="displayNameShouldBeGenerated"></xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

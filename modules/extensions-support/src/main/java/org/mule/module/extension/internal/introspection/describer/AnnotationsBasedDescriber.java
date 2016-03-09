@@ -11,6 +11,7 @@ import static org.mule.metadata.java.utils.JavaTypeUtils.getType;
 import static org.mule.module.extension.internal.introspection.describer.MuleExtensionAnnotationParser.getExtension;
 import static org.mule.module.extension.internal.introspection.describer.MuleExtensionAnnotationParser.getMemberName;
 import static org.mule.module.extension.internal.introspection.describer.MuleExtensionAnnotationParser.parseDisplayAnnotations;
+import static org.mule.module.extension.internal.introspection.describer.MuleExtensionAnnotationParser.parseDisplayNameAnnotation;
 import static org.mule.module.extension.internal.util.IntrospectionUtils.getExposedFields;
 import static org.mule.module.extension.internal.util.IntrospectionUtils.getField;
 import static org.mule.module.extension.internal.util.IntrospectionUtils.getInterfaceGenerics;
@@ -475,6 +476,7 @@ public final class AnnotationsBasedDescriber implements Describer
                 parameter.describedAs(EMPTY).ofType(parsedParameter.getType());
                 addTypeRestrictions(parameter, parsedParameter);
                 parseDisplayAnnotations(parsedParameter, parameter);
+                parseDisplayNameAnnotation(parsedParameter, parsedParameter.getName(), parameter);
             }
 
             Connection connectionAnnotation = parsedParameter.getAnnotation(Connection.class);

@@ -18,12 +18,15 @@ import org.mule.extension.api.annotation.RestrictedTo;
 import org.mule.extension.api.annotation.param.Connection;
 import org.mule.extension.api.annotation.param.Optional;
 import org.mule.extension.api.annotation.param.UseConfig;
+import org.mule.extension.api.annotation.param.display.DisplayName;
 import org.mule.extension.api.annotation.param.display.Password;
 import org.mule.extension.api.annotation.param.display.Placement;
 import org.mule.extension.api.annotation.param.display.Text;
 import org.mule.extension.api.introspection.EnrichableModel;
 import org.mule.extension.api.introspection.declaration.fluent.BaseDeclaration;
 import org.mule.extension.api.introspection.declaration.fluent.HasModelProperties;
+import org.mule.extension.api.introspection.property.display.DisplayNameModelProperty;
+import org.mule.extension.api.introspection.property.display.ImmutableDisplayNameModelProperty;
 import org.mule.extension.api.introspection.property.display.ImmutablePasswordModelProperty;
 import org.mule.extension.api.introspection.property.display.ImmutablePlacementModelProperty;
 import org.mule.extension.api.introspection.property.display.ImmutableTextModelProperty;
@@ -230,6 +233,12 @@ public final class MuleExtensionAnnotationParser
         {
             parameter.withModelProperty(PlacementModelProperty.KEY, new ImmutablePlacementModelProperty(placementAnnotation.order(), placementAnnotation.group(), placementAnnotation.tab()));
         }
+    }
+
+    public static void parseDisplayNameAnnotation(AnnotatedElement annotatedElement, String fieldName, HasModelProperties parameter){
+        DisplayName displayNameAnnotation = annotatedElement.getAnnotation(DisplayName.class);
+        String displayName = (displayNameAnnotation != null) ? displayNameAnnotation.value() : StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(StringUtils.capitalize(fieldName)), ' ');
+        parameter.withModelProperty(DisplayNameModelProperty.KEY, new ImmutableDisplayNameModelProperty(displayName));
     }
 
 }
